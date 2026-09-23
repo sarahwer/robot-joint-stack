@@ -1,0 +1,13 @@
+# Code style for our own code (common/, app/, boards/*/src). Vendor code is not reformatted.
+BasedOnStyle: LLVM
+IndentWidth: 4
+ColumnLimit: 110
+BreakBeforeBraces: Custom
+BraceWrapping:
+  AfterFunction: true
+AllowShortFunctionsOnASingleLine: Empty
+AllowShortIfStatementsOnASingleLine: Never
+AlignConsecutiveMacros: true
+AlignConsecutiveAssignments: Consecutive
+PointerAlignment: Right
+SortIncludes: false

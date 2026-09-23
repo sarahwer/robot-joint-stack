@@ -1,0 +1,11 @@
+build/
+third_party/
+*.o
+*.elf
+*.hex
+*.bin
+*.map
+__pycache__/
+.vscode/
+.idea/
+compile_commands.json

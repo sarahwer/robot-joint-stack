@@ -1,0 +1,42 @@
+{
+  "version": 3,
+  "cmakeMinimumRequired": { "major": 3, "minor": 22, "patch": 0 },
+  "configurePresets": [
+    {
+      "name": "host-tests",
+      "displayName": "Unit tests on the PC (with sanitizers)",
+      "generator": "Ninja",
+      "binaryDir": "${sourceDir}/build/host",
+      "cacheVariables": { "RJS_SANITIZE": "ON", "CMAKE_BUILD_TYPE": "Debug" }
+    },
+    {
+      "name": "h7s3l8-base",
+      "hidden": true,
+      "generator": "Ninja",
+      "toolchainFile": "${sourceDir}/cmake/arm-none-eabi.cmake",
+      "cacheVariables": { "RJS_BOARD": "nucleo_h7s3l8", "CMAKE_BUILD_TYPE": "RelWithDebInfo" }
+    },
+    {
+      "name": "h7s3l8-node1",
+      "displayName": "NUCLEO-H7S3L8, node 1 (controller)",
+      "inherits": "h7s3l8-base",
+      "binaryDir": "${sourceDir}/build/h7s3l8-node1",
+      "cacheVariables": { "RJS_NODE_ID": "1" }
+    },
+    {
+      "name": "h7s3l8-node2",
+      "displayName": "NUCLEO-H7S3L8, node 2 (joint)",
+      "inherits": "h7s3l8-base",
+      "binaryDir": "${sourceDir}/build/h7s3l8-node2",
+      "cacheVariables": { "RJS_NODE_ID": "2" }
+    }
+  ],
+  "buildPresets": [
+    { "name": "host-tests", "configurePreset": "host-tests" },
+    { "name": "h7s3l8-node1", "configurePreset": "h7s3l8-node1" },
+    { "name": "h7s3l8-node2", "configurePreset": "h7s3l8-node2" }
+  ],
+  "testPresets": [
+    { "name": "host-tests", "configurePreset": "host-tests", "output": { "outputOnFailure": true } }
+  ]
+}
