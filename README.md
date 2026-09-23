@@ -35,6 +35,7 @@ flowchart LR
 | Board bring-up: clocks (HSE, PLLs), MPU, caches, fault handler with PC/LR dump | [`boards/nucleo_h7s3l8/src`](boards/nucleo_h7s3l8/src) |
 | Testing: host unit tests with ASan/UBSan, C/Python wire-format cross-check, CI | [`tests`](tests), [`.github/workflows/ci.yml`](.github/workflows/ci.yml) |
 | Measurement: control loop jitter from the cycle counter, debug pin for the logic analyzer | [docs/measurements.md](docs/measurements.md) |
+| Display driver: ST7789 TFT over SPI with DMA, cache maintenance, redraw of changed characters only | [`boards/nucleo_h7s3l8/src/display_st7789.c`](boards/nucleo_h7s3l8/src/display_st7789.c), [`common/ui`](common/ui) |
 
 ## How phase 1 works
 
@@ -69,6 +70,7 @@ common/            chip-independent C11 libraries (compile for the PC and every 
   protocol/        CAN FD message encode/decode
   node/            heartbeat supervision
   joint/           joint model with safety limits
+  ui/              character screen for the TFT (only changed cells are redrawn) + 8x16 font
 app/joint_node/    FreeRTOS application, uses only board.h + hal_can.h
 boards/
   nucleo_h7s3l8/   STM32H7S3L8 port: clocks, FDCAN driver, UART, interrupts, FreeRTOS config
@@ -89,9 +91,13 @@ cmake --preset host-tests && cmake --build --preset host-tests && ctest --preset
 
 cmake --preset h7s3l8-node1 && cmake --build --preset h7s3l8-node1
 cmake --preset h7s3l8-node2 && cmake --build --preset h7s3l8-node2
+
+# optional: node 1 with the 2.0" ST7789 status display (see docs/display.md)
+cmake --preset h7s3l8-node1-display && cmake --build --preset h7s3l8-node1-display
 ```
 
-Current size (node 1, `-O2`): **35 KB flash of 64 KB internal flash, 50 KB RAM** (48 KB of it is the FreeRTOS heap).
+Current size (node 1, `-O2`): **35 KB flash of 64 KB internal flash, 50 KB RAM** (48 KB of it is the FreeRTOS heap);
+47 KB flash with the display build.
 
 ## Flash and run
 
@@ -115,6 +121,7 @@ Wiring: see [docs/bring-up.md](docs/bring-up.md#wiring).
 
 - [x] **Phase 1a:** protocol, supervision, joint model, host tests, CI
 - [x] **Phase 1b:** FreeRTOS + FDCAN port for NUCLEO-H7S3L8, builds for node 1 and node 2
+- [x] **Phase 1d:** optional ST7789 TFT status display (SPI + DMA), off by default
 - [ ] **Phase 1c:** hardware bring-up on two boards, first measurements
 - [ ] **Phase 2:** port to NXP FRDM-IMXRT1186 (FlexCAN) as joint controller: same `app/`, new `boards/frdm_imxrt1186`
 - [ ] **Phase 3:** Raspberry Pi 5 as EtherCAT master (SOEM) ↔ RT1186; PSOC Edge E84 sensor head

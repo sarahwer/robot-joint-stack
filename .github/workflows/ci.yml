@@ -39,7 +39,7 @@ jobs:
     runs-on: ubuntu-24.04
     strategy:
       matrix:
-        preset: [h7s3l8-node1, h7s3l8-node2]
+        preset: [h7s3l8-node1, h7s3l8-node2, h7s3l8-node1-display]
     steps:
       - uses: actions/checkout@v4
       - name: Install Arm toolchain

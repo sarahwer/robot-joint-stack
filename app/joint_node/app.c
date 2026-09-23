@@ -74,6 +74,8 @@ static rjs_monitor_t     s_monitor;           /* owned by can_rx task */
 static rjs_joint_state_t s_joint_snapshot;    /* written by control task */
 static uint16_t          s_joint_flags;       /* written by control task */
 static uint8_t           s_alive_peers;       /* written by can_rx task */
+static app_peer_view_t   s_peer_view[RJS_VIEW_PEERS];  /* written by can_rx task */
+static uint8_t           s_peer_view_count;
 static volatile bool     s_sweep_enabled = true;
 static uint8_t           s_node_id;
 
@@ -234,6 +236,23 @@ static void can_rx_task(void *arg)
         }
         rjs_monitor_poll(&s_monitor, board_millis());
         s_alive_peers = rjs_monitor_alive_count(&s_monitor);
+
+        /* Publish a small snapshot of the peer table for the display. */
+        app_peer_view_t view[RJS_VIEW_PEERS];
+        uint8_t n = 0;
+        for (uint8_t i = 0; i < s_monitor.count && n < RJS_VIEW_PEERS; ++i) {
+            view[n].node        = s_monitor.peers[i].node;
+            view[n].status      = (uint8_t)s_monitor.peers[i].status;
+            view[n].state       = s_monitor.peers[i].last.state;
+            view[n].error_flags = s_monitor.peers[i].last.error_flags;
+            n++;
+        }
+        taskENTER_CRITICAL();
+        for (uint8_t i = 0; i < n; ++i) {
+            s_peer_view[i] = view[i];
+        }
+        s_peer_view_count = n;
+        taskEXIT_CRITICAL();
     }
 }
 
@@ -356,6 +375,38 @@ static void stats_task(void *arg)
     }
 }
 
+/* ---- snapshot for the display ---------------------------------------------------- */
+
+void app_get_view(app_view_t *v)
+{
+    memset(v, 0, sizeof(*v));
+    v->node_id       = s_node_id;
+    v->controller    = (s_node_id == RJS_CONTROLLER_NODE_ID);
+    v->sweep_enabled = s_sweep_enabled;
+    v->uptime_ms     = board_millis();
+
+    taskENTER_CRITICAL();
+    v->joint       = s_joint_snapshot;
+    v->joint_flags = s_joint_flags;
+    v->peer_count  = s_peer_view_count;
+    for (uint8_t i = 0; i < s_peer_view_count && i < RJS_VIEW_PEERS; ++i) {
+        v->peers[i] = s_peer_view[i];
+    }
+    taskEXIT_CRITICAL();
+
+    v->tx_frames          = s_stats.tx_frames;
+    v->rx_frames          = s_stats.rx_frames;
+    v->tx_busy            = s_stats.tx_busy;
+    v->rx_dropped         = s_stats.rx_dropped;
+    v->loop_jitter_max_us = s_stats.loop_jitter_max_us;
+
+    rjs_can_status_t cs;
+    rjs_can_get_status(&cs);
+    v->tx_error_count = cs.tx_error_count;
+    v->rx_error_count = cs.rx_error_count;
+    v->bus_off        = cs.bus_off;
+}
+
 /* ---- start-up ------------------------------------------------------------------ */
 
 void app_start(void)
@@ -389,4 +440,7 @@ void app_start(void)
     if (ok != pdPASS) {
         board_fatal("task creation failed");
     }
+#if RJS_ENABLE_DISPLAY
+    ui_start(PRIO_STATS);
+#endif
 }

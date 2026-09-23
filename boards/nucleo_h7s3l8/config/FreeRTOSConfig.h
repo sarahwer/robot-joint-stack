@@ -53,7 +53,7 @@ void board_assert_failed(const char *file, int line);
 /* ---- API functions included ------------------------------------------------ */
 #define INCLUDE_vTaskPrioritySet                1
 #define INCLUDE_uxTaskPriorityGet               1
-#define INCLUDE_vTaskDelete                     0
+#define INCLUDE_vTaskDelete                     1
 #define INCLUDE_vTaskSuspend                    1
 #define INCLUDE_xTaskDelayUntil                 1
 #define INCLUDE_vTaskDelay                      1

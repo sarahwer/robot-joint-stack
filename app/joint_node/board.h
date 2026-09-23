@@ -42,6 +42,15 @@ bool board_button_raw(void);
 /** Blocking write to the debug UART (ST-LINK virtual COM port). */
 void board_uart_write(const char *data, size_t len);
 
+/* ---- optional TFT display (built only with -DRJS_ENABLE_DISPLAY=ON) ---- */
+
+/** Bring up the display. Returns false if the controller could not be initialised. */
+bool board_display_init(void);
+/** Copy RGB565 pixels into the given rectangle. */
+void board_display_blit(uint16_t x, uint16_t y, uint16_t w, uint16_t h, const uint16_t *pixels);
+/** Fill a rectangle with one colour. */
+void board_display_fill(uint16_t x, uint16_t y, uint16_t w, uint16_t h, uint16_t color);
+
 /** Unrecoverable error: disable interrupts, show the error LED, stay here. */
 void board_fatal(const char *reason) __attribute__((noreturn));
 

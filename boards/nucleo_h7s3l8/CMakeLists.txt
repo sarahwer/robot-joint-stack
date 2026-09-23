@@ -5,6 +5,7 @@
 # Third-party sources are fetched by scripts/fetch_deps.sh into third_party/.
 
 set(RJS_NODE_ID 1 CACHE STRING "CAN node ID of this board (1 = controller)")
+option(RJS_ENABLE_DISPLAY "Build with the ST7789 TFT status display" OFF)
 
 set(TP ${CMAKE_SOURCE_DIR}/third_party)
 foreach(dep FreeRTOS-Kernel stm32h7rsxx_hal_driver cmsis_device_h7rs CMSIS_5)
@@ -33,6 +34,8 @@ add_library(st_hal STATIC
     ${HAL}/stm32h7rsxx_hal_fdcan.c
     ${HAL}/stm32h7rsxx_hal_uart.c
     ${HAL}/stm32h7rsxx_hal_uart_ex.c
+    ${HAL}/stm32h7rsxx_hal_spi.c
+    ${HAL}/stm32h7rsxx_hal_spi_ex.c
     ${TP}/cmsis_device_h7rs/Source/Templates/system_stm32h7rsxx.c
 )
 target_include_directories(st_hal PUBLIC
@@ -61,7 +64,7 @@ target_include_directories(freertos PUBLIC
 target_compile_options(freertos PRIVATE -w)
 
 # ---- apply CPU flags to everything in this directory -----------------------
-foreach(t st_hal freertos rjs_hal rjs_protocol rjs_node rjs_joint)
+foreach(t st_hal freertos rjs_hal rjs_protocol rjs_node rjs_joint rjs_ui)
     target_compile_options(${t} PRIVATE ${CPU_FLAGS} -ffunction-sections -fdata-sections -O2 -g3)
 endforeach()
 
@@ -79,7 +82,14 @@ add_executable(${FW}
 )
 target_include_directories(${FW} PRIVATE ${CMAKE_SOURCE_DIR}/app/joint_node)
 target_compile_definitions(${FW} PRIVATE RJS_NODE_ID=${RJS_NODE_ID})
-target_link_libraries(${FW} PRIVATE st_hal freertos rjs_protocol rjs_node rjs_joint rjs_hal)
+target_link_libraries(${FW} PRIVATE st_hal freertos rjs_protocol rjs_node rjs_joint rjs_hal rjs_ui)
+
+if(RJS_ENABLE_DISPLAY)
+    target_sources(${FW} PRIVATE src/display_st7789.c ${CMAKE_SOURCE_DIR}/app/joint_node/ui.c)
+    target_compile_definitions(${FW} PRIVATE RJS_ENABLE_DISPLAY=1)
+else()
+    target_compile_definitions(${FW} PRIVATE RJS_ENABLE_DISPLAY=0)
+endif()
 target_compile_options(${FW} PRIVATE ${CPU_FLAGS} -ffunction-sections -fdata-sections -O2 -g3
     $<$<COMPILE_LANGUAGE:C>:-Wall -Wextra -Wshadow -Wstrict-prototypes -Wmissing-prototypes -Werror>)
 

@@ -19,3 +19,7 @@ add_library(rjs_joint STATIC joint/src/joint.c)
 target_include_directories(rjs_joint PUBLIC joint/include)
 target_link_libraries(rjs_joint PUBLIC rjs_protocol)
 target_compile_options(rjs_joint PRIVATE ${RJS_WARNINGS})
+
+add_library(rjs_ui STATIC ui/src/text_screen.c ui/src/font8x16.c)
+target_include_directories(rjs_ui PUBLIC ui/include)
+target_compile_options(rjs_ui PRIVATE ${RJS_WARNINGS})

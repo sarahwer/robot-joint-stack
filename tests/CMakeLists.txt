@@ -3,11 +3,11 @@
 
 option(RJS_SANITIZE "Build tests with ASan/UBSan" OFF)
 
-set(RJS_TESTS test_protocol test_node_monitor test_joint test_can_timing)
+set(RJS_TESTS test_protocol test_node_monitor test_joint test_can_timing test_text_screen)
 
 foreach(t ${RJS_TESTS})
     add_executable(${t} ${t}.c)
-    target_link_libraries(${t} PRIVATE rjs_protocol rjs_node rjs_joint)
+    target_link_libraries(${t} PRIVATE rjs_protocol rjs_node rjs_joint rjs_ui)
     target_compile_options(${t} PRIVATE -Wall -Wextra -Werror)
     if(RJS_SANITIZE)
         target_compile_options(${t} PRIVATE -fsanitize=address,undefined -fno-omit-frame-pointer)
@@ -17,7 +17,7 @@ foreach(t ${RJS_TESTS})
 endforeach()
 
 if(RJS_SANITIZE)
-    foreach(lib rjs_hal rjs_protocol rjs_node rjs_joint)
+    foreach(lib rjs_hal rjs_protocol rjs_node rjs_joint rjs_ui)
         target_compile_options(${lib} PRIVATE -fsanitize=address,undefined -fno-omit-frame-pointer)
     endforeach()
 endif()

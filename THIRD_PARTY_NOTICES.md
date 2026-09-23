@@ -15,5 +15,7 @@ Included in this repository:
 |---|---|---|
 | `boards/nucleo_h7s3l8/config/stm32h7rsxx_hal_conf.h` | STM32CubeH7RS, `Projects/NUCLEO-H7S3L8/Templates/Template/Boot` (FDCAN and UART modules enabled) | BSD-3-Clause, © STMicroelectronics |
 
+| `common/ui/src/font8x16.c` | glyph bitmaps rendered from DejaVu Sans Mono by `tools/gen_font.py` | DejaVu fonts license (Bitstream Vera / Arev derivative), © Bitstream Inc. and the DejaVu authors |
+
 The clock and MPU configuration in `boards/nucleo_h7s3l8/src/board.c` follows the values of ST's
 NUCLEO-H7S3L8 templates.

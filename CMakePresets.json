@@ -24,6 +24,13 @@
       "cacheVariables": { "RJS_NODE_ID": "1" }
     },
     {
+      "name": "h7s3l8-node1-display",
+      "displayName": "NUCLEO-H7S3L8, node 1 with ST7789 TFT",
+      "inherits": "h7s3l8-base",
+      "binaryDir": "${sourceDir}/build/h7s3l8-node1-display",
+      "cacheVariables": { "RJS_NODE_ID": "1", "RJS_ENABLE_DISPLAY": "ON" }
+    },
+    {
       "name": "h7s3l8-node2",
       "displayName": "NUCLEO-H7S3L8, node 2 (joint)",
       "inherits": "h7s3l8-base",
@@ -34,6 +41,7 @@
   "buildPresets": [
     { "name": "host-tests", "configurePreset": "host-tests" },
     { "name": "h7s3l8-node1", "configurePreset": "h7s3l8-node1" },
+    { "name": "h7s3l8-node1-display", "configurePreset": "h7s3l8-node1-display" },
     { "name": "h7s3l8-node2", "configurePreset": "h7s3l8-node2" }
   ],
   "testPresets": [
